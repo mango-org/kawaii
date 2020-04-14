@@ -2,3 +2,5 @@ name: kawaii
 version: 1.0.0
 description: jPHP framework for faster developing web applications
 
+modules:
+  - kawaii-core
