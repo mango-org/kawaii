@@ -2,3 +2,9 @@ name: kawaii-core
 version: 1.0.0
 description: Core of kawaii framework
 
+sources:
+  - src
+
+deps:
+  jphp-runtime: '*'
+  jphp-dffi-ext: '*'
