@@ -14,6 +14,14 @@ class DI
     private array $beans = [];
 
     /**
+     * DI constructor.
+     */
+    public function __construct()
+    {
+        $this->set(DI::class, $this);
+    }
+
+    /**
      * @param string $key
      * @return mixed
      */

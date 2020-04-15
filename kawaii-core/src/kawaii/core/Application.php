@@ -19,13 +19,13 @@ abstract class Application extends Component
      */
     public function __construct()
     {
-        parent::__construct(new DI()); // create new DI instance ...
-
         // init logger
         if (OSUtils::isWindows()) {
             DFFIConsole::enableColors();
         }
 
         Logger::addWriter(Logger::stdoutWriter(OSUtils::isUnix() || DFFIConsole::hasColorSupport()));
+
+        parent::__construct(new DI()); // create new DI instance ...
     }
 }

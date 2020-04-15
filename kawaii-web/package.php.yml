@@ -2,3 +2,9 @@ name: kawaii-web
 version: 1.0.0
 description: Web module for kawaii framework
 
+sources:
+  - src
+
+deps:
+  kawaii-core: ../kawaii-core
+  mango-web-server: '*'
