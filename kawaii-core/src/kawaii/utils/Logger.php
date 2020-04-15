@@ -45,8 +45,7 @@ class Logger
         'DEBUG' => 'silver',
         'WARN'  => 'bold+yellow',
         'ERROR' => 'bold+red',
-        'TRACE' => 'cyan',
-        'INFO'  => 'bold+blue'
+        'TRACE' => 'cyan'
     ];
 
     protected static array $writeHandlers = [];
@@ -151,7 +150,7 @@ class Logger
         $message = str::replace($message, "{level}", $type);
 
         foreach ($args as $i => $arg) {
-            $message = str::replace($message, "\{$i\}", $arg);
+            $message = str::replace($message, "{{$i}}", $arg);
         }
 
         $result = str::replace(static::$format, '{message}', $message);
