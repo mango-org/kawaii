@@ -4,3 +4,5 @@ description: jPHP framework for faster developing web applications
 
 modules:
   - kawaii-core
+  - kawaii-web
+

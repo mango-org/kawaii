@@ -40,9 +40,9 @@ abstract class Component
                         if (($type = $parameter->getType()) != null) {
                             $args[] = $this->__dependencyInjection->get($type->getName());
                         } else {
-                            if (($value = $parameter->getDefaultValue()) != null) {
-                                $args[] = $value;
-                            } else {
+                            try {
+                                $args[] = $parameter->getDefaultValue();
+                            } catch (ReflectionException $exception) {
                                 $args[] = null;
                             }
                         }

@@ -28,4 +28,12 @@ abstract class Application extends Component
 
         parent::__construct(new DI()); // create new DI instance ...
     }
+
+    /**
+     * @param string $clazz
+     * @return mixed
+     */
+    public function getComponent(string $clazz) {
+        return $this->__dependencyInjection->get($clazz);
+    }
 }
