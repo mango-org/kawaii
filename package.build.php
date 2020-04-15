@@ -7,7 +7,8 @@ use packager\Event;
  * @jppm-task publish
  */
 function task_publish(Event $event) {
-    foreach ($event->package()->getAny('modules', []) as $i => $module)
+    foreach ($event->package()->getAny('modules', []) as $i => $module) {
         Tasks::runExternal("./$module", 'update', [], "yes");
         Tasks::runExternal("./$module", 'publish', [], "yes");
+    }
 }

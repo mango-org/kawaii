@@ -73,7 +73,7 @@ abstract class Component
         if (is_string($component))
             $component = new $component($this->__dependencyInjection);
 
-        Logger::trace("Register component {0} in global context", get_class($component));
+        //Logger::trace("Register component {0} in global context", get_class($component));
         return $this->__dependencyInjection->set(get_class($component), $component);
     }
 
