@@ -17,18 +17,18 @@ use Throwable;
  */
 abstract class Component
 {
-    protected DI $__dependencyInjection;
+    protected Context $__context;
 
     /**
      * Component constructor.
-     * @param DI $dependencyInjection
+     * @param Context $context
      */
-    public function __construct(DI $dependencyInjection)
+    public function __construct(Context $context)
     {
-        $this->__dependencyInjection = $dependencyInjection;
+        $this->__context = $context;
 
         foreach ($this->getComponents() as $component)
-            $this->addComponent($component);
+            $this->__addComponent($component);
 
         try {
             $clazz = new ReflectionClass($this);
@@ -38,7 +38,7 @@ abstract class Component
                     $args = [];
                     foreach ($method->getParameters() as $parameter) {
                         if (($type = $parameter->getType()) != null) {
-                            $args[] = $this->__dependencyInjection->get($type->getName());
+                            $args[] = $this->__context->get($type->getName());
                         } else {
                             try {
                                 $args[] = $parameter->getDefaultValue();
@@ -48,7 +48,7 @@ abstract class Component
                         }
                     }
 
-                    $this->addComponent($method->invokeArgs($this, $args));
+                    $this->__addComponent($method->invokeArgs($this, $args));
                 }
             }
         } catch (Throwable $exception) {
@@ -69,12 +69,12 @@ abstract class Component
      * @param $component
      * @return mixed
      */
-    public function addComponent($component) {
+    public function __addComponent($component) {
         if (is_string($component))
-            $component = new $component($this->__dependencyInjection);
+            $component = new $component($this->__context);
 
         //Logger::trace("Register component {0} in global context", get_class($component));
-        return $this->__dependencyInjection->set(get_class($component), $component);
+        return $this->__context->set(get_class($component), $component);
     }
 
     /**
@@ -95,7 +95,7 @@ abstract class Component
                 if ($type == null) {
                     return $property->getValue($this);
                 } else {
-                    return $this->__dependencyInjection->get($type);
+                    return $this->__context->get($type);
                 }
             }
         }
@@ -120,7 +120,7 @@ abstract class Component
                 if ($type == null) {
                     $property->setValue($this, $value);
                 } else {
-                    $this->__dependencyInjection->set($type, $value);
+                    $this->__context->set($type, $value);
                 }
             }
         }

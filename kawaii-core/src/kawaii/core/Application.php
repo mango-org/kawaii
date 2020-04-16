@@ -26,7 +26,7 @@ abstract class Application extends Component
 
         Logger::addWriter(Logger::stdoutWriter(OSUtils::isUnix() || DFFIConsole::hasColorSupport()));
 
-        parent::__construct(new DI()); // create new DI instance ...
+        parent::__construct(new Context()); // create new DI instance ...
     }
 
     /**
@@ -34,6 +34,6 @@ abstract class Application extends Component
      * @return mixed
      */
     public function getComponent(string $clazz) {
-        return $this->__dependencyInjection->get($clazz);
+        return $this->__context->get($clazz);
     }
 }

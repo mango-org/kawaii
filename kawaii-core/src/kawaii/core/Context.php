@@ -3,10 +3,10 @@
 namespace kawaii\core;
 
 /**
- * Class DI
+ * Class Context
  * @package kawaii\core
  */
-class DI
+class Context
 {
     /**
      * @var array
@@ -14,11 +14,11 @@ class DI
     private array $beans = [];
 
     /**
-     * DI constructor.
+     * Context constructor.
      */
     public function __construct()
     {
-        $this->set(DI::class, $this);
+        $this->set(Context::class, $this);
     }
 
     /**
@@ -44,5 +44,23 @@ class DI
      */
     public function has(string $key): bool {
         return isset($this->beans[$key]);
+    }
+
+    /**
+     * @param callable $callback ($key, $value): bool
+     * @return array
+     */
+    public function lookup(callable $callback = null): array {
+        $out = [];
+
+        if ($callback == null)
+            $callback = fn($key, $bean) => true;
+
+        foreach ($this->beans as $key => $bean) {
+            if ($callback($key, $bean))
+                $out[] = $bean;
+        }
+
+        return $out;
     }
 }
