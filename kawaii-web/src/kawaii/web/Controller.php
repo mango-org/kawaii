@@ -5,6 +5,10 @@ namespace kawaii\web;
 use kawaii\core\Component;
 use kawaii\utils\AnnotationsUtils;
 use kawaii\utils\Logger;
+use kawaii\web\exceptions\RedirectException;
+use kawaii\web\exceptions\WebException;
+use kawaii\web\filter\Filter;
+use php\http\HttpRedirectHandler;
 use php\http\HttpServerRequest;
 use php\http\HttpServerResponse;
 use php\lib\str;
@@ -39,15 +43,6 @@ abstract class Controller extends Component
             $method = $clazz->getMethod($method);
             $filter = fn($data) => $data;
 
-            if (($type = $method->getReturnType()) != null) {
-                if ($type->isBuiltin()) {
-                    if ($type->getName() == "array") {
-                        $response->contentType("application/json");
-                        $filter = fn($data) => str::formatAs($data, "json");
-                    }
-                }
-            }
-
             foreach ($method->getParameters() as $parameter) {
                 if (($type = $parameter->getType()) != null) {
                     if ($type->getName() == HttpServerRequest::class) {
@@ -55,7 +50,7 @@ abstract class Controller extends Component
                     } elseif ($type->getName() == HttpServerResponse::class) {
                         $args[] = $response;
                     } else {
-                        $args[] = $this->__dependencyInjection->get($type->getName());
+                        $args[] = $this->__context->get($type->getName());
                     }
                 } else {
                     try {
@@ -67,12 +62,34 @@ abstract class Controller extends Component
             }
 
             try {
-                $response->write($filter($method->invokeArgs($this, $args)));
+                $data = null;
+
+                try {
+                    $data = $method->invokeArgs($this, $args);
+                } catch (RedirectException $exception) {
+                    (new HttpRedirectHandler($exception->getLocation()))($request, $response);
+                } catch (Throwable $exception) {
+                    $data = [
+                        "path" => $request->path(),
+                        "message" => $exception->getMessage(),
+                        "code" => 500
+                    ];
+
+                    if ($exception instanceof WebException) {
+                        $data["code"] = $exception->getHttpCode();
+                    }
+
+                    $response->status($data["code"]);
+                }
+
+                /** @var Filter $filter */
+                foreach ($this->__context->lookup(fn($key, $value) => $value instanceof Filter) as $filter) {
+                    if ($filter->filter($clazz, $request, $response, $data)) break;
+                }
             } catch (Throwable $exception) {
                 Logger::error("Fatal error in {0} on path '{1}': {2}", get_class($this), $request->path(), $exception->getMessage());
                 $response->status(500, "Internal server error");
             }
-
         } catch (ReflectionException $exception) {
             $response->status(404, "Not found!");
         }

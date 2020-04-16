@@ -5,6 +5,8 @@ namespace kawaii\web;
 use kawaii\core\Application;
 use kawaii\utils\AnnotationsUtils;
 use kawaii\utils\Logger;
+use kawaii\web\filter\JsonFilter;
+use kawaii\web\filter\RawStringFilter;
 use php\http\HttpServer;
 use php\io\IOException;
 use ReflectionClass;
@@ -20,10 +22,13 @@ abstract class WebApplication extends Application
     {
         parent::__construct();
 
+        $this->__addComponent(JsonFilter::class);
+        $this->__addComponent(RawStringFilter::class);
+
         /** @var $httpServer HttpServer */
-        $httpServer = $this->__dependencyInjection->get(HttpServer::class);
-        foreach ($this->getControllers() as $controller) {
-            $controller = $this->addComponent($controller);
+        $httpServer = $this->__context->get(HttpServer::class);
+        foreach ($this->__context->lookup(fn ($key, $value) => $value instanceof Controller) as $controller) {
+            $controller = $this->__addComponent($controller);
 
             try {
                 $path = AnnotationsUtils::getOfClass("Path", new ReflectionClass($controller), "/");
@@ -42,14 +47,9 @@ abstract class WebApplication extends Application
         return new HttpServer(9657);
     }
 
-    /**
-     * @return string[]
-     */
-    abstract public function getControllers(): array;
-
     public function run() {
         /** @var $httpServer HttpServer */
-        $httpServer = $this->__dependencyInjection->get(HttpServer::class);
+        $httpServer = $this->__context->get(HttpServer::class);
         $httpServer->run();;
     }
 }
