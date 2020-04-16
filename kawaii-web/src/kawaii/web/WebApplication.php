@@ -31,7 +31,7 @@ abstract class WebApplication extends Application
             $controller = $this->__addComponent($controller);
 
             try {
-                $path = AnnotationsUtils::getOfClass("Path", new ReflectionClass($controller), "/");
+                $path = AnnotationsUtils::getOfClass("path", new ReflectionClass($controller), "/");
                 $httpServer->any($path, $controller);
                 Logger::info("{0} successfully mapped to '{1}'", get_class($controller), $path);
             } catch (Throwable $exception) {
